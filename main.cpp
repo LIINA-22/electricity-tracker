@@ -79,12 +79,58 @@ void enterReadings(double usage[], int size) {
     cout << "Readings saved." << endl;
 }
 
+// ---------- ميزات المايلستون 2 (الاختيارية) ----------
+
+// يعرض القراءات مرتبة من الأقل إلى الأعلى (بدون تعديل المصفوفة الأصلية)
+void showSorted(const double usage[], int size) {
+    double sorted[MONTHS];
+    for (int i = 0; i < size; i++) {          // ننسخ المصفوفة عشان ما نغير الأصلية
+        sorted[i] = usage[i];
+    }
+
+    // Bubble Sort: نقارن كل عنصر بالتالي ونبدله إذا كان أكبر منه
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (sorted[j] > sorted[j + 1]) {
+                double temp = sorted[j];
+                sorted[j] = sorted[j + 1];
+                sorted[j + 1] = temp;
+            }
+        }
+    }
+
+    cout << "Readings from lowest to highest:" << endl;
+    for (int i = 0; i < size; i++) {
+        cout << "  " << sorted[i] << " kWh" << endl;
+    }
+}
+
+// يعرض الشهور اللي تجاوز استهلاكها حد يحدده المستخدم
+void thresholdAnalysis(const double usage[], int size) {
+    double limit = readPositive("Enter the limit (kWh): ");
+    int count = 0;
+
+    cout << "Months above " << limit << " kWh:" << endl;
+    for (int i = 0; i < size; i++) {
+        if (usage[i] > limit) {
+            cout << "  Month " << i + 1 << ": " << usage[i] << " kWh" << endl;
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        cout << "  No month exceeded the limit." << endl;
+    } else {
+        cout << "Total months above limit: " << count << endl;
+    }
+}
+
 // ---------- دالة حفظ التقرير ----------
 
 // تكتب القراءات والنتائج في ملف report.txt
 void saveReport(const double usage[], int size) {
     ofstream out("report.txt");
-    if (!out) {                                   // نتأكد إن الملف انفتح
+    if (!out) {
         cout << "Error: could not create report file." << endl;
         return;
     }
@@ -118,6 +164,8 @@ int main() {
         cout << "4) Lowest month" << endl;
         cout << "5) Enter new readings" << endl;
         cout << "6) Save report to file" << endl;
+        cout << "7) Show readings sorted" << endl;
+        cout << "8) Threshold analysis" << endl;
         cout << "0) Exit" << endl;
         choice = readChoice();
 
@@ -139,6 +187,12 @@ int main() {
                 break;
             case 6:
                 saveReport(usage, MONTHS);
+                break;
+            case 7:
+                showSorted(usage, MONTHS);
+                break;
+            case 8:
+                thresholdAnalysis(usage, MONTHS);
                 break;
             case 0:
                 cout << "Goodbye!" << endl;
